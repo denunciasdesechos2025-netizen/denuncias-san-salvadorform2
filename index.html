@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gestión de Denuncias con IA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body
+    class="bg-gray-50 text-gray-800 antialiased min-h-screen relative overflow-x-hidden selection:bg-primary-500 selection:text-white pb-20">
+
+    <!-- Background Decor -->
+    <div class="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-blue-400/10 blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-purple-400/10 blur-[120px]">
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast-container" class="fixed top-4 right-4 z-[100] flex flex-col gap-2"></div>
+
+    <!-- Header -->
+    <header class="glass sticky top-0 z-40 border-b border-white/20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div
+                    class="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-blue-500/30">
+                    AI
+                </div>
+                <h1
+                    class="text-xl font-display font-bold text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600">
+                    Gestión de Denuncias
+                </h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="openSettings()"
+                    class="flex items-center gap-2 text-xs font-medium px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full transition-colors">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Configuración
+                </button>
+                <div
+                    class="hidden md:flex items-center gap-2 text-xs font-medium px-3 py-1.5 bg-green-100/50 text-green-700 rounded-full border border-green-200/50">
+                    <span class="relative flex h-2 w-2">
+                        <span
+                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    Sistema Operativo
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+
+        <!-- Welcome Hero -->
+        <div
+            class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 p-8 text-white shadow-2xl shadow-slate-900/20">
+            <div class="absolute top-0 right-0 p-12 opacity-10">
+                <svg class="w-64 h-64" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+                </svg>
+            </div>
+            <div class="relative z-10 max-w-2xl">
+                <h2 class="text-3xl font-display font-bold mb-2">Panel de Control Inteligente</h2>
+                <p class="text-slate-300 text-lg mb-6">Procesa reportes ciudadanos, genera respuestas automáticas y
+                    sincroniza datos en tiempo real.</p>
+                <div class="flex flex-wrap gap-3">
+                    <button onclick="document.getElementById('raw-complaint-input').focus()"
+                        class="bg-white text-slate-900 hover:bg-slate-50 font-bold py-2.5 px-5 rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-95 flex items-center gap-2">
+                        <span>✨ Nueva Denuncia</span>
+                    </button>
+                    <a href="https://docs.google.com/spreadsheets/d/1cNkYD1o0-BrqPKUZRcEOeR8L7fP4HCeA/edit?gid=1405471195#gid=1405471195"
+                        target="_blank"
+                        class="bg-white/10 hover:bg-white/20 text-white font-medium py-2.5 px-5 rounded-xl transition-all border border-white/10 backdrop-blur-sm flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Ver Hoja de Cálculo
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: Input & Analysis -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Input Column -->
+            <div class="lg:col-span-5 space-y-6">
+                <div class="glass card p-6 slide-up" style="animation-delay: 0.1s;">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-display font-bold text-gray-900 flex items-center gap-2">
+                            <span
+                                class="w-6 h-6 rounded bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">1</span>
+                            Ingreso de Denuncia
+                        </h3>
+                    </div>
+
+                    <div class="relative">
+                        <textarea id="raw-complaint-input" rows="8"
+                            class="w-full bg-gray-50 border-gray-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition resize-none placeholder-gray-400"
+                            placeholder="Pega aquí el texto de la denuncia (WhatsApp, Email, Redes Sociales)..."></textarea>
+                        <div class="absolute bottom-3 right-3 text-xs text-gray-400">
+                            IA Ready
+                        </div>
+                    </div>
+
+                    <button id="analyze-button" onclick="analyzeComplaint()"
+                        class="w-full mt-4 group relative overflow-hidden bg-primary-600 hover:bg-primary-700 text-white font-bold py-3 px-4 rounded-xl transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]">
+                        <div class="relative z-10 flex items-center justify-center gap-2">
+                            <span id="spinner-analyze" class="hidden animate-spin">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                            </span>
+                            <span>Analizar con Gemini 2.0</span>
+                        </div>
+                        <div
+                            class="absolute inset-0 h-full w-full scale-0 rounded-xl transition-all duration-300 group-hover:scale-100 group-hover:bg-blue-600/50">
+                        </div>
+                    </button>
+                    <p class="text-center text-xs text-slate-400 mt-3">Detecta automáticamente: Categoría, Urgencia y
+                        Entidades.</p>
+                </div>
+            </div>
+
+            <!-- Results Column -->
+            <div class="lg:col-span-7 space-y-6">
+                <!-- Analysis Result Card -->
+                <div id="analysis-result"
+                    class="glass card p-0 overflow-hidden slide-up opacity-50 pointer-events-none transition-all duration-500"
+                    style="animation-delay: 0.2s;">
+                    <div class="p-6 border-b border-gray-100 bg-white/50">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-lg font-display font-bold text-gray-900 flex items-center gap-2">
+                                <span
+                                    class="w-6 h-6 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-bold">2</span>
+                                Datos Estructurados
+                            </h3>
+                            <button onclick="optimizarPeticion()"
+                                class="text-xs bg-white hover:bg-indigo-50 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-full transition flex items-center gap-1 font-medium">
+                                ✨ Mejorar Redacción
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Key Metrics -->
+                        <div class="space-y-4">
+                            <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                <span
+                                    class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Urgencia</span>
+                                <div id="display-urgencia"
+                                    class="mt-1 text-lg font-bold text-gray-800 flex items-center gap-2">
+                                    --
+                                </div>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                <span
+                                    class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Categoría</span>
+                                <div id="display-categoria" class="mt-1 font-medium text-gray-800">--</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-xl p-3 border border-gray-100">
+                                <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">ID
+                                    Caso</span>
+                                <div id="display-id" class="mt-1 font-mono text-sm text-gray-600">--</div>
+                            </div>
+                        </div>
+
+                        <!-- Details -->
+                        <div class="space-y-4">
+                            <div>
+                                <span
+                                    class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Denunciante</span>
+                                <div class="mt-1 text-sm font-medium text-gray-900">
+                                    <span id="display-nombre">--</span>
+                                    <span id="display-contacto" class="text-gray-500 font-normal ml-1"></span>
+                                </div>
+                            </div>
+                            <div>
+                                <span
+                                    class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Ubicación</span>
+                                <div id="display-direccion" class="mt-1 text-sm text-gray-700 leading-relaxed">--</div>
+                            </div>
+                            <div>
+                                <span
+                                    class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Distrito</span>
+                                <div id="display-distrito" class="mt-1 text-sm text-gray-700">--</div>
+                            </div>
+                        </div>
+
+                        <!-- Full Text -->
+                        <div class="md:col-span-2 mt-2">
+                            <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Petición
+                                Detallada</span>
+                            <div id="display-peticion"
+                                class="mt-2 p-3 bg-blue-50/50 border border-blue-100 rounded-xl text-sm text-gray-700 italic border-l-4 border-l-blue-400">
+                                --
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Bar -->
+                    <div
+                        class="bg-gray-50/80 px-6 py-4 border-t border-gray-100 flex flex-wrap gap-3 justify-end items-center">
+                        <span class="text-xs text-gray-400 mr-auto flex-1">Acciones Rápidas:</span>
+
+                        <button onclick="sendToGoogleSheet()" id="btn-save-sheet"
+                            class="btn-secondary text-xs flex items-center gap-2">
+                            <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 24 24">
+                                <path
+                                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
+                            </svg>
+                            Guardar en Sheets
+                        </button>
+
+                        <button onclick="generarYDescargarCSV()" class="btn-secondary text-xs flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Generation & Templates -->
+        <h3 class="text-xl font-display font-bold text-gray-900 pt-4 flex items-center gap-2">
+            <span
+                class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center text-sm font-bold shadow-lg shadow-purple-500/30">3</span>
+            Generación de Respuestas
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+            <!-- Internal Report Card -->
+            <div class="glass card flex flex-col h-full slide-up" style="animation-delay: 0.3s;">
+                <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-red-50/30">
+                    <h4 class="font-bold text-red-900 text-sm uppercase tracking-wide">Reporte Interno</h4>
+                    <div class="h-2 w-2 rounded-full bg-red-500"></div>
+                </div>
+                <div class="p-5 flex-grow">
+                    <div id="reporte-dependencia"
+                        class="w-full h-40 bg-gray-50 rounded-lg p-3 text-xs font-mono text-gray-600 overflow-y-auto border border-gray-200">
+                        Esperando análisis...
+                    </div>
+                </div>
+                <div class="p-5 pt-0 mt-auto space-y-2">
+                    <button onclick="copiarTexto('reporte-dependencia')" class="w-full btn-secondary text-xs">
+                        Copiar al Portapapeles
+                    </button>
+                    <button onclick="generarPlanTecnico()"
+                        class="w-full btn-primary bg-slate-800 hover:bg-slate-900 text-xs">
+                        ✨ Generar Plan Técnico
+                    </button>
+                </div>
+            </div>
+
+            <!-- Citizen Response Card -->
+            <div class="glass card flex flex-col h-full slide-up" style="animation-delay: 0.4s;">
+                <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-green-50/30">
+                    <h4 class="font-bold text-green-900 text-sm uppercase tracking-wide">Respuesta Ciudadano</h4>
+                    <div class="h-2 w-2 rounded-full bg-green-500"></div>
+                </div>
+                <div class="p-5 flex-grow">
+                    <div id="respuesta-ciudadano"
+                        class="w-full h-40 bg-gray-50 rounded-lg p-3 text-sm text-gray-700 overflow-y-auto border border-gray-200 whitespace-pre-line">
+                        Esperando análisis...
+                    </div>
+                </div>
+                <div class="p-5 pt-0 mt-auto space-y-2">
+                    <button onclick="copiarTexto('respuesta-ciudadano')" class="w-full btn-secondary text-xs">
+                        Copiar Respuesta
+                    </button>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="traducirRespuesta('en')"
+                            class="btn-ghost text-[10px] text-gray-500 border border-gray-200">Traducir EN</button>
+                        <button onclick="traducirRespuesta('fr')"
+                            class="btn-ghost text-[10px] text-gray-500 border border-gray-200">Traducir FR</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Action Plan -->
+            <div class="glass card flex flex-col h-full ring-2 ring-blue-500/20 slide-up"
+                style="animation-delay: 0.5s;">
+                <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-blue-50/30">
+                    <h4 class="font-bold text-blue-900 text-sm uppercase tracking-wide">Plan de Acción IA</h4>
+                    <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">GEMINI</span>
+                </div>
+                <div class="p-5 flex-grow">
+                    <div id="ai-plan-box"
+                        class="w-full h-full bg-blue-50/50 rounded-lg p-4 text-sm text-blue-900 italic overflow-y-auto border border-blue-100 min-h-[160px]">
+                        Genera el reporte interno primero para desbloquear el plan de acción estratégico.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Settings Modal -->
+    <div id="settings-modal"
+        class="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm hidden flex items-center justify-center opacity-0 transition-opacity duration-300">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 transform scale-95 transition-transform duration-300"
+            id="settings-panel">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-display font-bold text-gray-900">Configuración del Sistema</h3>
+                <button onclick="closeSettings()" class="text-gray-400 hover:text-gray-600 transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Gemini API Key</label>
+                    <input type="password" id="input-gemini-key"
+                        class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+                        placeholder="AIzaSy...">
+                    <p class="text-[10px] text-gray-500 mt-1">Se guarda localmente en tu navegador. Nunca se comparte.
+                    </p>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Google Script URL</label>
+                    <input type="text" id="input-script-url"
+                        class="w-full p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
+                        placeholder="https://script.google.com/...">
+                    <p class="text-[10px] text-gray-500 mt-1">URL de la Web App desplegada para guardar datos.</p>
+                </div>
+            </div>
+
+            <div class="mt-8 flex gap-3">
+                <button onclick="saveSettings()"
+                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition shadow-lg shadow-blue-500/30">
+                    Guardar Configuración
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
